@@ -1,0 +1,15 @@
+# Machine-specific — each machine maintains its own copy
+.project-paths
+
+# Vault pull timestamp (written by memory-wrappers.sh debounce)
+.last-pull
+
+# Obsidian workspace state — machine-specific, don't sync
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Everything else in .obsidian/ (plugins, settings, appearance) IS committed
+# so your Obsidian setup stays consistent across devices
+
+# OS cruft
+.DS_Store
