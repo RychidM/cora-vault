@@ -96,6 +96,16 @@ workflow: see [`SETUP.md`](SETUP.md).
 
 ---
 
+## Inspiration
+
+Inspired by Andrej Karpathy's
+["LLM Wiki" note](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+— an LLM that incrementally maintains a persistent, interlinked knowledge
+base instead of re-deriving it on every query. CORA Vault is built on that
+idea.
+
+---
+
 ## License
 
 MIT — see [`LICENSE`](LICENSE).
