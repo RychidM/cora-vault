@@ -74,6 +74,34 @@ else
         rm -f "$f.bak"
     done
 
+    # Modules don't get their own ACTIVITY.md — their activity rolls up
+    # into the parent's feed via breadcrumbs, not a per-module diary.
+    if $IS_MODULE; then
+        rm -f "$VAULT_PROJECT_DIR/ACTIVITY.md"
+    fi
+
+    # Declare the parent/submodule relationship in frontmatter. Per
+    # AGENTS.md this — not folder nesting — is the source of truth used
+    # to resolve which ACTIVITY.md to read at session start.
+    if $IS_MODULE; then
+        MODULE_OVERVIEW="$VAULT_PROJECT_DIR/OVERVIEW.md"
+        sed -i.bak "s/^parent: *\$/parent: $PARENT_NAME/" "$MODULE_OVERVIEW"
+        rm -f "$MODULE_OVERVIEW.bak"
+
+        PARENT_OVERVIEW="$PARENT_VAULT_DIR/OVERVIEW.md"
+        if grep -q '^submodules: \[\]$' "$PARENT_OVERVIEW"; then
+            sed -i.bak "s/^submodules: \[\]\$/submodules: [$PROJECT_NAME]/" "$PARENT_OVERVIEW"
+            rm -f "$PARENT_OVERVIEW.bak"
+        elif grep -qE '^submodules: \[.*\]$' "$PARENT_OVERVIEW"; then
+            if ! grep -qE "^submodules:.*[\[, ]$PROJECT_NAME[,\]]" "$PARENT_OVERVIEW"; then
+                sed -i.bak "s/^submodules: \[\(.*\)\]\$/submodules: [\1, $PROJECT_NAME]/" "$PARENT_OVERVIEW"
+                rm -f "$PARENT_OVERVIEW.bak"
+            fi
+        else
+            info "Could not find 'submodules:' in $PARENT_OVERVIEW — add '$PROJECT_NAME' to it manually"
+        fi
+    fi
+
     # If module: inject parent link into OVERVIEW.md (after the first heading)
     if $IS_MODULE; then
         PARENT_LINK="

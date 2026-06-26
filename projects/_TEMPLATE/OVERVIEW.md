@@ -5,6 +5,8 @@ type: personal | client | open-source
 started: YYYY-MM-DD
 repo: https://github.com/...
 live: https://...
+parent:
+submodules: []
 ---
 
 # Project Name — Overview

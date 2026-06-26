@@ -3,7 +3,7 @@
 #
 # Remote server setup — add to ~/.bashrc or ~/.zshrc on the server:
 #
-#   export AGENT_MEMORY_VAULT="$HOME/agent-memory-vault"
+#   export AGENT_MEMORY_VAULT="$HOME/cora-vault"
 #   source "$AGENT_MEMORY_VAULT/scripts/memory-wrappers.sh"
 #
 # On your local machine (Obsidian), the vault lives in the same Git repo.
@@ -16,7 +16,7 @@
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-AGENT_MEMORY_VAULT="${AGENT_MEMORY_VAULT:-$HOME/agent-memory-vault}"
+AGENT_MEMORY_VAULT="${AGENT_MEMORY_VAULT:-$HOME/cora-vault}"
 _AW_SYNC="$AGENT_MEMORY_VAULT/scripts/sync-memory.sh"
 
 # How often to pull from Git, in seconds (default: 5 minutes)

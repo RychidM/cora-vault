@@ -7,7 +7,7 @@ This is the maintenance guide for this vault. Agents don't need to read this.
 ## Vault Structure
 
 ```
-agent-memory-vault/
+cora-vault/
 ├── AGENTS.md                    ← Entry point for all agents
 ├── SETUP.md                     ← This file (for you only)
 ├── setup.sh                     ← Run once after cloning to personalize the vault
@@ -19,13 +19,14 @@ agent-memory-vault/
 ├── projects/
 │   ├── _INDEX.md
 │   ├── _TEMPLATE/               ← Copy this to create a new top-level project
-│   └── example-parent/          ← Example: parent project with nested modules
+│   └── example-parent/          ← Example: top-level project with nested modules
 │       ├── OVERVIEW.md          ← Umbrella: full system architecture
 │       ├── STYLE.md             ← Cross-cutting style rules
 │       ├── ISSUES.md            ← System-wide issues
 │       ├── PROGRESS.md          ← Overall milestones
+│       ├── ACTIVITY.md          ← Rollup of submodule breadcrumbs (every top-level project gets one; modules don't)
 │       ├── docs/                ← Long-form docs (specs, design docs, diagrams)
-│       └── example-module/      ← Module: its own OVERVIEW/STYLE/ISSUES/PROGRESS/docs
+│       └── example-module/      ← Module: its own OVERVIEW/STYLE/ISSUES/PROGRESS/docs (no ACTIVITY.md)
 ├── brand/
 │   ├── PROFILE.md
 │   ├── AESTHETIC.md

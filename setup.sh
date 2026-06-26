@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# setup.sh — One-time personalization for a freshly cloned agent-memory-vault.
+# setup.sh — One-time personalization for a freshly cloned cora-vault.
 #
 # Fills in {{OWNER_NAME}} / {{TODAY}} placeholders across the vault's
 # markdown files, makes the scripts executable, and prints shell-wiring

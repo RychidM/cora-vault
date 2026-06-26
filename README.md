@@ -1,6 +1,8 @@
-# Agent Memory Vault Template
+# CORA Vault
 
-A reusable starting point for an [Obsidian](https://obsidian.md)-based memory
+The memory vault that the [CORA](https://github.com/RychidM/cora) plugin
+operates on — a reusable starting point for an
+[Obsidian](https://obsidian.md)-based memory
 vault that AI coding agents (Claude Code, Gemini CLI, GitHub Copilot, Codex)
 read at the start of every session — your identity, your projects' state,
 open issues, decisions, and conventions — instead of starting cold every time.
@@ -14,8 +16,8 @@ own projects, ideas, and preferences.
 ## Quickstart
 
 ```bash
-git clone <this-repo-url> agent-memory-vault
-cd agent-memory-vault
+git clone <this-repo-url> cora-vault
+cd cora-vault
 ./setup.sh
 ```
 
@@ -35,7 +37,7 @@ markdown files — no network calls, no other side effects.
 Add these two lines to your shell profile, then reload it:
 
 ```bash
-export AGENT_MEMORY_VAULT="/absolute/path/to/agent-memory-vault"
+export AGENT_MEMORY_VAULT="/absolute/path/to/cora-vault"
 source "$AGENT_MEMORY_VAULT/scripts/memory-wrappers.sh"
 ```
 
@@ -76,8 +78,9 @@ remote) and regenerates that project's `CLAUDE.md`/`GEMINI.md`/
 - `AGENTS.md` — the entry point every agent reads. Identity, active projects,
   write-back protocol, cross-module rules.
 - `projects/{name}/` — one folder per project: `OVERVIEW.md`, `ISSUES.md`,
-  `PROGRESS.md`, `STYLE.md`, `docs/` (long-form documents), and `ACTIVITY.md`
-  for parent projects with submodules.
+  `PROGRESS.md`, `STYLE.md`, `docs/` (long-form documents). Top-level
+  projects also get `ACTIVITY.md` (a rollup feed for submodule activity,
+  empty until the project has a module); modules don't have their own.
 - `ideas/` — a lightweight idea backlog by domain.
 - `brand/` — your profile, design preferences, and goals (used for anything
   client-facing or design-related).

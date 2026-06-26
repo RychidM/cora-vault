@@ -28,10 +28,10 @@ single highest-value thing to fill in — it's what every agent reads first. -->
 
 The first thing an agent does in any chat session that touches a project context:
 
-1. **Locate the relevant `ACTIVITY.md`.** `ACTIVITY.md` lives **only at parent projects with submodules** — it's a rollup view of submodule activity, not a per-project diary. Parent-child relationships are declared explicitly in `OVERVIEW.md` frontmatter (each submodule lists `parent: {name}`, each parent lists `submodules: [...]`) — read the project's `OVERVIEW.md` first to resolve which case applies:
+1. **Locate the relevant `ACTIVITY.md`.** Every top-level project has an `ACTIVITY.md` (scaffolded from `_TEMPLATE` at creation) — but it's a **rollup view of submodule activity**, not a per-project diary, so it only has content once that project has at least one module. Parent-child relationships are declared explicitly in `OVERVIEW.md` frontmatter (each submodule lists `parent: {name}`, each parent lists `submodules: [...]`) — read the project's `OVERVIEW.md` first to resolve which case applies:
    - Working in a submodule (its `OVERVIEW.md` has `parent: X`) → read `projects/X/ACTIVITY.md`.
-   - Working in a parent project (its `OVERVIEW.md` has `submodules: [...]`) → read its own `ACTIVITY.md`.
-   - Working in a standalone project (neither field set) → skip this step; there is no `ACTIVITY.md` to read.
+   - Working in a top-level project with `submodules: [...]` set → read its own `ACTIVITY.md`.
+   - Working in a standalone project (no submodules, neither field set) → skip this step; its `ACTIVITY.md` exists but is empty, nothing to surface.
 
 2. **Find the date of the last session on this project.** Look in `sessions/_INDEX.md`, filter for sessions whose `scope:` matches this project or any of its submodules, and pick the most recent one before today. Note its date.
 
@@ -69,7 +69,7 @@ Each project/module folder (`projects/{name}/`) follows a consistent layout:
 | `ISSUES.md` | Open and resolved issues |
 | `PROGRESS.md` | Milestones and progress log |
 | `STYLE.md` | Project-specific conventions (overrides Global Principles) |
-| `ACTIVITY.md` | Parent projects only — rollup of submodule activity |
+| `ACTIVITY.md` | Top-level projects only (not modules) — rollup of submodule activity; empty until the project has a module |
 | `docs/` | Long-form project documents — specs, design docs, diagrams, exported references. Not part of the propose-then-write flow; drop files in directly. |
 
 ---
@@ -172,13 +172,13 @@ Since entries write directly to destination files, the destination's existing fo
 
 ## Cross-Module Awareness
 
-When a project has submodules (other project folders nested inside it), the parent must always know what happens in any submodule. The parent maintains an `ACTIVITY.md` that aggregates submodule activity as chronological breadcrumbs. **Standalone projects (no submodules) do not have an `ACTIVITY.md`** — there is nothing to roll up.
+When a project has submodules (other project folders nested inside it), the parent must always know what happens in any submodule. The parent maintains an `ACTIVITY.md` that aggregates submodule activity as chronological breadcrumbs. Every top-level project gets this file at creation (any of them could gain a module later) — **standalone projects just leave it empty**, since there's nothing to roll up yet.
 
 **Parent-child relationships are declared in `OVERVIEW.md` frontmatter.** Each submodule lists `parent: {parent-name}`; each parent lists `submodules: [child1, child2, ...]`. This is the source of truth for resolving which `ACTIVITY.md` to read at session start and where to drop breadcrumbs. Folder nesting is incidental; the frontmatter declaration is authoritative.
 
 ### Rules
 
-1. **`ACTIVITY.md` lives at parent projects only.** Located at `projects/{parent}/ACTIVITY.md`. Submodules do not have their own — they keep their work in their own `ISSUES.md` / `PROGRESS.md` / `OVERVIEW.md` as usual. All cross-module signaling routes through the parent's single feed.
+1. **`ACTIVITY.md` lives at top-level projects only.** Located at `projects/{parent}/ACTIVITY.md`, scaffolded at creation whether or not the project has modules yet. Modules do not have their own — they keep their work in their own `ISSUES.md` / `PROGRESS.md` / `OVERVIEW.md` as usual. All cross-module signaling routes through the parent's single feed.
 
 2. **Parent breadcrumb is implicit.** Every substantive submodule write generates a breadcrumb in the parent's `ACTIVITY.md`. The agent doesn't request this — it's part of every submodule proposal automatically.
 
@@ -220,9 +220,9 @@ Single line, chronological append (most recent at top of the most-recent date bl
 
 One entry per write, even when multiple siblings are affected — the `→ affects:` marker lists all of them.
 
-### ACTIVITY.md skeleton (parent projects only)
+### ACTIVITY.md skeleton (top-level projects only)
 
-If the parent doesn't have one yet, create it as part of the first activity write. Skeleton:
+Every top-level project is scaffolded with this file already (via `init-project.sh` / `vault-project-init`), so it normally exists before the first activity write. If a pre-existing project predates this and doesn't have one yet, create it as part of the first activity write. Skeleton:
 
 ````markdown
 ---
