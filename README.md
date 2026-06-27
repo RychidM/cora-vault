@@ -1,11 +1,14 @@
 # CORA Vault
 
-The memory vault that the [CORA](https://github.com/RychidM/cora) plugin
-operates on — a reusable starting point for an
-[Obsidian](https://obsidian.md)-based memory
-vault that AI coding agents (Claude Code, Gemini CLI, GitHub Copilot, Codex)
-read at the start of every session — your identity, your projects' state,
-open issues, decisions, and conventions — instead of starting cold every time.
+The memory vault that [CORA](https://github.com/RychidM/cora) operates on.
+CORA Vault holds the content; the CORA plugin is the controls — the two work
+hand in hand (see [Working with CORA](#working-with-cora)).
+
+It's a reusable starting point for an [Obsidian](https://obsidian.md)-based
+memory vault that AI coding agents (Claude Code, Gemini CLI, GitHub Copilot,
+Codex) read at the start of every session — your identity, your projects'
+state, open issues, decisions, and conventions — instead of starting cold
+every time.
 
 This repo is the **structure and mechanics only**: empty templates, working
 sync scripts, no personal content. Clone it, run `setup.sh`, and fill in your
@@ -93,6 +96,29 @@ remote) and regenerates that project's `CLAUDE.md`/`GEMINI.md`/
 
 Full reference, including the vault structure diagram and maintenance
 workflow: see [`SETUP.md`](SETUP.md).
+
+---
+
+## Working with CORA
+
+CORA Vault holds the content; **[CORA](https://github.com/RychidM/cora)** is
+the operational layer that works it. They're designed to be used together:
+
+- **The vault's scripts** cover the essentials from a plain shell, no agent
+  needed — `setup.sh` (scaffold the vault), `init-project.sh` (new project),
+  `sync-memory.sh` (regenerate per-repo agent files), `memory-wrappers.sh`
+  (keep them fresh).
+- **The CORA plugin** adds the full operational surface from chat, across
+  Claude, Copilot, Gemini, and Codex: capture ideas and decisions
+  (`/cora-log`), spin up and sync projects (`/cora-init`, `/cora-sync`),
+  search and read (`/cora-find`, `/cora-read`, `/cora-status`), synthesize
+  research (`/cora-ingest`), capture and resume sessions (`/cora-carry`,
+  `/cora-recall`, `/cora-resume`), edit and reshape (`/cora-edit`,
+  `/cora-move`), and keep the vault healthy (`/cora-lint`).
+
+Both write the same files and frontmatter, so you can use the scripts, the
+skills, or mix the two freely. Install CORA from the
+[plugin repo](https://github.com/RychidM/cora#installation).
 
 ---
 
