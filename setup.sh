@@ -81,6 +81,9 @@ ok "Made scripts/*.sh executable"
 # ── 6. Platform-aware next steps ───────────────────────────────────────────
 
 OS_NAME="$(uname -s)"
+# PROFILE values are human-readable display text echoed below, not paths the
+# script operates on — the literal tilde is intentional.
+# shellcheck disable=SC2088
 case "$OS_NAME" in
     Darwin)
         PLATFORM="macOS"

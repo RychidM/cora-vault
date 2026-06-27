@@ -93,7 +93,7 @@ else
             sed -i.bak "s/^submodules: \[\]\$/submodules: [$PROJECT_NAME]/" "$PARENT_OVERVIEW"
             rm -f "$PARENT_OVERVIEW.bak"
         elif grep -qE '^submodules: \[.*\]$' "$PARENT_OVERVIEW"; then
-            if ! grep -qE "^submodules:.*[\[, ]$PROJECT_NAME[,\]]" "$PARENT_OVERVIEW"; then
+            if ! grep -qE "^submodules:.*[\[, ]${PROJECT_NAME}[,\]]" "$PARENT_OVERVIEW"; then
                 sed -i.bak "s/^submodules: \[\(.*\)\]\$/submodules: [\1, $PROJECT_NAME]/" "$PARENT_OVERVIEW"
                 rm -f "$PARENT_OVERVIEW.bak"
             fi
