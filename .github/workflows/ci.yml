@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  shell:
+    name: Shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ShellCheck
+        run: shellcheck setup.sh scripts/*.sh
+      - name: Bash syntax check
+        run: |
+          for f in setup.sh scripts/*.sh; do
+            bash -n "$f"
+          done
+
+  structure:
+    name: Template structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify required template files exist
+        run: |
+          set -euo pipefail
+          required=(
+            AGENTS.md
+            SETUP.md
+            projects/_INDEX.md
+            projects/_TEMPLATE/OVERVIEW.md
+            projects/_TEMPLATE/STYLE.md
+            projects/_TEMPLATE/ISSUES.md
+            projects/_TEMPLATE/PROGRESS.md
+            projects/_TEMPLATE/ACTIVITY.md
+            projects/_TEMPLATE/docs/README.md
+          )
+          missing=0
+          for f in "${required[@]}"; do
+            if [[ ! -f "$f" ]]; then
+              echo "MISSING: $f"
+              missing=1
+            fi
+          done
+          if [[ "$missing" -eq 0 ]]; then
+            echo "Template structure OK."
+          fi
+          exit "$missing"
