@@ -6,8 +6,8 @@
 #
 # If no project name is given, the script derives it from the current
 # working directory's folder name. It resolves the CORA vault, finds the
-# matching vault project, reads the correct ACTIVITY.md and
-# sessions/_INDEX.md, and emits a plain-text recap on stdout.
+# matching vault project, reads the correct ACTIVITY.md, and emits a
+# plain-text recap on stdout.
 #
 # This script is agent-agnostic — each agent's SessionStart hook wrapper
 # is responsible for turning this plain text into the JSON shape that
@@ -92,64 +92,10 @@ read_frontmatter() {
     ' "$file"
 }
 
-# ── Date helpers ─────────────────────────────────────────────────────────────
+# ── ACTIVITY.md parsing ───────────────────────────────────────────────────────
 
-# Convert a YYYY-MM-DD date to an integer comparable with test -lt/-gt.
-date_to_int() {
-    local d="$1"
-    echo "${d//-/}"
-}
-
-# Today in YYYY-MM-DD format.
-today_str() {
-    date +%Y-%m-%d
-}
-
-# ── ACTIVITY.md parsing ────────────────────────────────────────────────────────
-
-# Read an ACTIVITY.md file and emit entries dated strictly after the cutoff.
-# Entries are lines under a ## YYYY-MM-DD heading.
-emit_activity_since() {
-    local activity_file="$1"
-    local cutoff="$2"
-    local cutoff_int
-    local current_date=""
-    local found_any=false
-
-    cutoff_int="$(date_to_int "$cutoff")"
-
-    if [[ ! -f "$activity_file" ]]; then
-        return 0
-    fi
-
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        # Date heading
-        if [[ "$line" =~ ^##[[:space:]]+([0-9]{4}-[0-9]{2}-[0-9]{2}) ]]; then
-            current_date="${BASH_REMATCH[1]}"
-            continue
-        fi
-
-        # Entry line: starts with "- " and contains a date
-        if [[ "$current_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ && "$line" =~ ^-[[:space:]]+([0-9]{4}-[0-9]{2}-[0-9]{2}) ]]; then
-            local entry_date="${BASH_REMATCH[1]}"
-            local entry_int
-            entry_int="$(date_to_int "$entry_date")"
-
-            if [[ "$entry_int" -gt "$cutoff_int" ]]; then
-                echo "$line"
-                found_any=true
-            fi
-        fi
-    done < "$activity_file"
-
-    if $found_any; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-# Fallback: emit the last N activity entries (regardless of date).
+# Emit the most recent N activity entries from an ACTIVITY.md file.
+# File is newest-at-top, so head gives the most recent entries.
 emit_activity_last_n() {
     local activity_file="$1"
     local n="$2"
@@ -158,58 +104,7 @@ emit_activity_last_n() {
         return 0
     fi
 
-    grep -E '^- [0-9]{4}-[0-9]{2}-[0-9]{2}' "$activity_file" | tail -n "$n"
-}
-
-# ── sessions/_INDEX.md parsing ───────────────────────────────────────────────
-
-# Find the most recent session date (before today) whose scope matches the
-# project path or any of its submodules/parent.
-find_last_session_date() {
-    local sessions_file="$1"
-    local project_path="$2"  # e.g. cora-suite/cora or cora-suite
-    local today
-    today="$(today_str)"
-    local best_date=""
-
-    if [[ ! -f "$sessions_file" ]]; then
-        return 0
-    fi
-
-    # Read the active sessions table. Scope is the third column and looks
-    # like `projects/cora-suite/cora` or `ideas/technical` or `general`.
-    # We match when the scope starts with the project path (so a parent
-    # project also matches sessions scoped to its modules).
-    while IFS= read -r line || [[ -n "$line" ]]; do
-        # Table rows only — first non-pipe token must be a date.
-        local session_date
-        session_date="$(echo "$line" | grep -oE '\|[[:space:]]*[0-9]{4}-[0-9]{2}-[0-9]{2}[[:space:]]*\|' | tr -d '|' | tr -d ' ')"
-        [[ -z "$session_date" ]] && continue
-
-        # Scope is the backtick-quoted value in the row.
-        local scope
-        scope="$(echo "$line" | grep -oE '\`[^`]+\`' | tr -d '\`')"
-        [[ -z "$scope" ]] && continue
-
-        # Skip rows with today's date or in the future
-        if [[ "$(date_to_int "$session_date")" -ge "$(date_to_int "$today")" ]]; then
-            continue
-        fi
-
-        # Match scope against project path. Scope values of interest start
-        # with "projects/". We strip that prefix, then check whether the
-        # remainder equals or starts with the project path.
-        if [[ "$scope" == projects/* ]]; then
-            local rel_scope="${scope#projects/}"
-            if [[ "$rel_scope" == "$project_path" || "$rel_scope" == "$project_path/"* ]]; then
-                if [[ -z "$best_date" || "$(date_to_int "$session_date")" -gt "$(date_to_int "$best_date")" ]]; then
-                    best_date="$session_date"
-                fi
-            fi
-        fi
-    done < "$sessions_file"
-
-    echo "$best_date"
+    grep -E '^- [0-9]{4}-[0-9]{2}-[0-9]{2}' "$activity_file" | head -n "$n"
 }
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -232,9 +127,8 @@ main() {
 MANDATORY SESSION START CONTEXT
 Project: $project_name
 Status: No matching vault project found at $vault/projects/...
-Last session: unknown
 
-Activity since last session:
+Recent activity:
 - (none — vault project not found)
 EOF
         return 0
@@ -243,7 +137,6 @@ EOF
     local parent_name=""
     local is_parent=false
     local is_module=false
-    local is_standalone=false
 
     local parent_value
     parent_value="$(read_frontmatter "$vault_project_dir/OVERVIEW.md" "parent")"
@@ -256,8 +149,6 @@ EOF
         parent_name="$parent_value"
     elif [[ -n "$submodules_value" && "$submodules_value" != "[]" ]]; then
         is_parent=true
-    else
-        is_standalone=true
     fi
 
     # Determine which ACTIVITY.md to read
@@ -268,26 +159,8 @@ EOF
         activity_file="$vault_project_dir/ACTIVITY.md"
     fi
 
-    # Build the project path for session matching
-    local project_path="$project_name"
-    if $is_module; then
-        project_path="$parent_name/$project_name"
-    fi
-
-    local last_session_date
-    last_session_date="$(find_last_session_date "$vault/sessions/_INDEX.md" "$project_path")"
-
-    local fallback_note=""
     local entries=""
-
-    if [[ -n "$last_session_date" ]]; then
-        entries="$(emit_activity_since "$activity_file" "$last_session_date" || true)"
-        if [[ -z "$entries" ]]; then
-            fallback_note="No activity entries dated after the last session ($last_session_date)."
-        fi
-    else
-        fallback_note="No prior session found for this project — falling back to recent activity."
-        # Last 5 entries or 7 days, whichever is more. We take last 5.
+    if [[ -n "$activity_file" && -f "$activity_file" ]]; then
         entries="$(emit_activity_last_n "$activity_file" 5)"
     fi
 
@@ -299,22 +172,10 @@ EOF
         relationship="parent project"
     fi
 
-    # Print the mandatory context block
     echo "MANDATORY SESSION START CONTEXT"
     echo "Project: $project_name ($relationship)"
-    if [[ -n "$last_session_date" ]]; then
-        echo "Last session: $last_session_date (from sessions/_INDEX.md)"
-    else
-        echo "Last session: none on record"
-    fi
-
-    if [[ -n "$fallback_note" ]]; then
-        echo ""
-        echo "$fallback_note"
-    fi
-
     echo ""
-    echo "Activity since last session:"
+    echo "Recent activity:"
     if [[ -n "$entries" ]]; then
         echo "$entries"
     else

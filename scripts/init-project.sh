@@ -217,8 +217,8 @@ if [[ -n "$REPO_PATH" ]]; then
     fi
 
     # ── 5. Ensure session-start helper is available in the vault scripts dir ──
-    local vault_scripts_dir="$VAULT_DIR/scripts"
-    local source_helper="$REPO_DIR/scripts/cora-session-start.sh"
+    vault_scripts_dir="$VAULT_DIR/scripts"
+    source_helper="$REPO_DIR/scripts/cora-session-start.sh"
     if [[ -f "$source_helper" ]]; then
         if [[ ! -f "$vault_scripts_dir/cora-session-start.sh" ]]; then
             mkdir -p "$vault_scripts_dir"

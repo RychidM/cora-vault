@@ -214,6 +214,7 @@ write_hook_wrappers() {
     local repo_path="$1"
     local project_name="$2"
 
+    # shellcheck disable=SC2016  # $RECAP_JSON is a template placeholder, not a shell variable
     # Claude Code expects hookSpecificOutput.hookEventName + additionalContext
     write_agent_wrapper "$repo_path" ".claude/hooks" '
   "hookSpecificOutput": {
