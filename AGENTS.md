@@ -24,93 +24,9 @@ single highest-value thing to fill in — it's what every agent reads first. -->
 
 ---
 
-## Session Start Protocol
+## Session Context
 
-The first thing an agent does in any chat session that touches a project context:
-
-1. **Locate the relevant `ACTIVITY.md`.** Every top-level project has an `ACTIVITY.md` (scaffolded from `_TEMPLATE` at creation) — but it's a **rollup view of submodule activity**, not a per-project diary, so it only has content once that project has at least one module. Parent-child relationships are declared explicitly in `OVERVIEW.md` frontmatter (each submodule lists `parent: {name}`, each parent lists `submodules: [...]`) — read the project's `OVERVIEW.md` first to resolve which case applies:
-   - Working in a submodule (its `OVERVIEW.md` has `parent: X`) → read `projects/X/ACTIVITY.md`.
-   - Working in a top-level project with `submodules: [...]` set → read its own `ACTIVITY.md`.
-   - Working in a standalone project (no submodules, neither field set) → skip this step; its `ACTIVITY.md` exists but is empty, nothing to surface.
-
-2. **Find the date of the last session on this project.** Look in `sessions/_INDEX.md`, filter for sessions whose `scope:` matches this project or any of its submodules, and pick the most recent one before today. Note its date.
-
-3. **Surface what's happened since.** From the `ACTIVITY.md`, list every entry dated **after** the last session's date. Format:
-
-   ```
-   Activity in {parent-project} since last session ({YYYY-MM-DD}):
-   - YYYY-MM-DD [submodule-name] [issue] Summary → [[submodule-name/ISSUES#issue-007]]
-   - YYYY-MM-DD [submodule-name → affects: sibling-name] [decision] Summary → [[submodule-name/OVERVIEW]]
-   ```
-
-   If there's no prior session for this project, fall back to the last 5 entries or the last 7 days, whichever is more.
-
-4. **Skip the recap only if you explicitly open with a quick one-off question** ("just answer this quick thing") or name a non-project context (`general`, an idea, a brand file, research topic).
-
-This protocol ensures no agent works blind to what's happened across submodules between sessions.
-
----
-
-## Active Projects
-
-| Project                                            | Status                 | Overview                                               |
-| --------------------------------------------------- | ---------------------- | ------------------------------------------------------- |
-| *(copy `projects/_TEMPLATE` to add a new project)* | —                      | —                                                        |
-
-→ Full index: [[projects/_INDEX]]
-
-### Project Folder Structure
-
-Each project/module folder (`projects/{name}/`) follows a consistent layout:
-
-| File / Folder | Purpose |
-|----------------|---------|
-| `OVERVIEW.md` | What it is, architecture, key decisions |
-| `ISSUES.md` | Open and resolved issues |
-| `PROGRESS.md` | Milestones and progress log |
-| `STYLE.md` | Project-specific conventions (overrides Global Principles) |
-| `ACTIVITY.md` | Top-level projects only (not modules) — rollup of submodule activity; empty until the project has a module |
-| `docs/` | Long-form project documents — specs, design docs, diagrams, exported references. Not part of the propose-then-write flow; drop files in directly. |
-
----
-
-## Ideas Bank
-
-| Domain | File |
-|--------|------|
-| Technical / Engineering | [[ideas/technical]] |
-| Product / Startup | [[ideas/product]] |
-| Content / Writing | [[ideas/content]] |
-| Business / Client Work | [[ideas/business]] |
-
----
-
-## Research Library
-
-This layer holds research material you're accumulating across topics — framework internals, technical analyses, design references, anything worth keeping. Two halves:
-
-- `research/sources/` — **immutable raw material**: web clips, framework docs, technical analyses, scratch notes. Nothing here is ever edited after it lands.
-- `research/topics/` — **LLM-maintained synthesis pages**: one page per topic, cross-linked, integrating everything across sources. Pages link back to the sources they synthesise from, and link into `projects/...` files when the research is relevant to a project.
-
-Index: [[research/_INDEX]] · Ingest log: [[research/_logs/INGEST_LOG]]
-
-If you've installed a skill/command set for this convention (e.g. an ingest skill), use it to process a new source. Periodically review the research library for contradictions, stale claims, and orphan pages.
-
----
-
-## Sessions
-
-Chat sessions worth carrying forward — discussions that produced artifacts, decisions, or references useful for later work — are captured under `sessions/{YYYY-MM-DD-slug}/`. Each session is its own folder:
-
-- `SESSION.md` — summary, key points, decisions, linked artifacts and references
-- `artifacts/` — code, diagrams, documents produced in the session
-- `references/` — external materials carried with the session
-
-Sessions are **flexibly scoped** via a `scope:` field pointing to a vault path: `projects/X`, `ideas/X`, `brand/X`, `research/topics/X`, or `general`. Not every session ties to a project.
-
-When working in an IDE on a project, ask the agent to *load recent sessions for this project* — `AGENTS.md` doesn't include them automatically (kept predictable; loading is opt-in).
-
-Index: [[sessions/_INDEX]]
+Session context is injected at the start of each session by the per-agent SessionStart hook installed by `cora-project-sync`.
 
 ---
 
@@ -245,6 +161,71 @@ last_updated: YYYY-MM-DD
 ````
 
 One date heading per day; entries within a day in any order.
+
+---
+
+<!-- sync-end -->
+
+## Active Projects
+
+| Project                                            | Status                 | Overview                                               |
+| --------------------------------------------------- | ---------------------- | ------------------------------------------------------- |
+| *(copy `projects/_TEMPLATE` to add a new project)* | —                      | —                                                        |
+
+→ Full index: [[projects/_INDEX]]
+
+### Project Folder Structure
+
+Each project/module folder (`projects/{name}/`) follows a consistent layout:
+
+| File / Folder | Purpose |
+|----------------|---------|
+| `OVERVIEW.md` | What it is, architecture, key decisions |
+| `ISSUES.md` | Open and resolved issues |
+| `PROGRESS.md` | Milestones and progress log |
+| `STYLE.md` | Project-specific conventions (overrides Global Principles) |
+| `ACTIVITY.md` | Top-level projects only (not modules) — rollup of submodule activity; empty until the project has a module |
+| `docs/` | Long-form project documents — specs, design docs, diagrams, exported references. Not part of the propose-then-write flow; drop files in directly. |
+
+---
+
+## Ideas Bank
+
+| Domain | File |
+|--------|------|
+| Technical / Engineering | [[ideas/technical]] |
+| Product / Startup | [[ideas/product]] |
+| Content / Writing | [[ideas/content]] |
+| Business / Client Work | [[ideas/business]] |
+
+---
+
+## Research Library
+
+This layer holds research material you're accumulating across topics — framework internals, technical analyses, design references, anything worth keeping. Two halves:
+
+- `research/sources/` — **immutable raw material**: web clips, framework docs, technical analyses, scratch notes. Nothing here is ever edited after it lands.
+- `research/topics/` — **LLM-maintained synthesis pages**: one page per topic, cross-linked, integrating everything across sources. Pages link back to the sources they synthesise from, and link into `projects/...` files when the research is relevant to a project.
+
+Index: [[research/_INDEX]] · Ingest log: [[research/_logs/INGEST_LOG]]
+
+If you've installed a skill/command set for this convention (e.g. an ingest skill), use it to process a new source. Periodically review the research library for contradictions, stale claims, and orphan pages.
+
+---
+
+## Sessions
+
+Chat sessions worth carrying forward — discussions that produced artifacts, decisions, or references useful for later work — are captured under `sessions/{YYYY-MM-DD-slug}/`. Each session is its own folder:
+
+- `SESSION.md` — summary, key points, decisions, linked artifacts and references
+- `artifacts/` — code, diagrams, documents produced in the session
+- `references/` — external materials carried with the session
+
+Sessions are **flexibly scoped** via a `scope:` field pointing to a vault path: `projects/X`, `ideas/X`, `brand/X`, `research/topics/X`, or `general`. Not every session ties to a project.
+
+When working in an IDE on a project, ask the agent to *load recent sessions for this project* — `AGENTS.md` doesn't include them automatically (kept predictable; loading is opt-in).
+
+Index: [[sessions/_INDEX]]
 
 ---
 
