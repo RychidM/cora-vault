@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.1]
 
 ### Changed
 - `AGENTS.md` restructured: `Session Start Protocol` replaced with a single-line
